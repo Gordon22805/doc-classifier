@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Преобразователь документов</title>
+    <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>Преобразователь документов</h1>
+            <p class="subtitle">Загрузите документы для распознавания и классификации</p>
+        </header>
+
+        <main class="main">
+            <!-- Зона загрузки -->
+            <section class="upload-section">
+                <div class="upload-zone" id="uploadZone">
+                    <svg class="upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/>
+                    </svg>
+                    <p class="upload-text">Перетащите файлы сюда или нажмите для выбора</p>
+                    <p class="upload-hint">PDF, JPG, PNG, HEIC, DOCX, ZIP, 7Z</p>
+                    <input type="file" id="fileInput" multiple accept=".pdf,.jpg,.jpeg,.png,.heic,.docx,.zip,.7z" hidden>
+                </div>
+
+                <div class="file-list" id="fileList"></div>
+
+                <button class="btn btn-primary" id="uploadBtn" disabled>
+                    Обработать документы
+                </button>
+            </section>
+
+            <!-- Статус обработки -->
+            <section class="status-section" id="statusSection" style="display: none;">
+                <div class="status-card">
+                    <div class="status-header">
+                        <h2>Обработка документов</h2>
+                        <span class="status-badge" id="statusBadge">Обработка...</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progressFill"></div>
+                    </div>
+                    <div class="status-info">
+                        <p id="statusInfo">Загрузка...</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Результаты -->
+            <section class="results-section" id="resultsSection" style="display: none;">
+                <div class="results-header">
+                    <h2>Результаты обработки</h2>
+                    <div class="results-actions">
+                        <button class="btn btn-secondary" id="downloadBtn">
+                            Скачать ZIP
+                        </button>
+                    </div>
+                </div>
+
+                <div class="summary-cards">
+                    <div class="summary-card">
+                        <div class="summary-label">Всего страниц</div>
+                        <div class="summary-value" id="totalPages">0</div>
+                    </div>
+                    <div class="summary-card">
+                        <div class="summary-label">Распознано</div>
+                        <div class="summary-value" id="recognizedPages">0</div>
+                    </div>
+                    <div class="summary-card">
+                        <div class="summary-label">Не распознано</div>
+                        <div class="summary-value" id="unknownPages">0</div>
+                    </div>
+                </div>
+
+                <div class="filters">
+                    <select id="typeFilter" class="filter-select">
+                        <option value="">Все типы</option>
+                    </select>
+                    <select id="statusFilter" class="filter-select">
+                        <option value="">Все статусы</option>
+                        <option value="success">Успешно</option>
+                        <option value="error">Ошибка</option>
+                    </select>
+                </div>
+
+                <div class="pages-grid" id="pagesGrid"></div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Модальное окно для просмотра страницы -->
+    <div class="modal" id="pageModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modalTitle">Страница</h3>
+                <button class="modal-close" id="modalClose">&times;</button>
+            </div>
+            <div class="modal-body">
+                <img id="modalImage" class="modal-image" alt="Предпросмотр страницы">
+                <div class="modal-info">
+                    <div class="info-row">
+                        <span class="info-label">Источник:</span>
+                        <span id="modalSource"></span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Тип документа:</span>
+                        <select id="modalTypeSelect" class="type-select"></select>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Уверенность:</span>
+                        <span id="modalConfidence"></span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Источник текста:</span>
+                        <span id="modalTextSource"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="modalCancelBtn">Отмена</button>
+                <button class="btn btn-primary" id="modalSaveBtn">Сохранить</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="/app.js"></script>
+</body>
+</html>
