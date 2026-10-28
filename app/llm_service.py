@@ -1,6 +1,7 @@
 import json
 import logging
 import time
+from datetime import datetime, timezone
 from typing import Any, Dict
 
 import httpx
@@ -73,8 +74,9 @@ class LLMService:
         if response.status_code == 401:
             raise LLMNotConfigured("OpenRouter отклонил ключ: проверьте OPENROUTER_API_KEY")
         if response.status_code == 429:
+            reason = self._rate_limit_message(response)
             logger.warning("OpenRouter: превышен лимит запросов, %.2f с", elapsed)
-            raise LLMError("OpenRouter: превышен лимит запросов, попробуйте позже")
+            raise LLMError(reason)
         if response.status_code == 403:
             logger.warning("OpenRouter вернул 403 за %.2f с", elapsed)
             raise LLMError("OpenRouter вернул 403: запрос заблокирован, проверьте ключ и сеть")
@@ -85,6 +87,20 @@ class LLMService:
         raw = self._extract_content(response)
         logger.info("LLM ответила за %.2f с", elapsed)
         return self._parse(raw)
+
+    @staticmethod
+    def _rate_limit_message(response: httpx.Response) -> str:
+        """429: показать остаток квоты и время сброса, иначе пользователь не поймёт, что делать."""
+        remaining = response.headers.get("x-ratelimit-remaining")
+        reset = response.headers.get("x-ratelimit-reset")
+        parts = ["OpenRouter: превышен лимит запросов"]
+        if remaining == "0":
+            parts.append("бесплатные запросы на сегодня закончились")
+        if reset and reset.isdigit():
+            moment = datetime.fromtimestamp(int(reset) / 1000, tz=timezone.utc)
+            parts.append(f"квота сбросится {moment:%d.%m.%Y %H:%M} UTC")
+        parts.append("можно пополнить баланс OpenRouter")
+        return ", ".join(parts)
 
     @staticmethod
     def _extract_content(response: httpx.Response) -> str:

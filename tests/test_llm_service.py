@@ -4,7 +4,7 @@ import httpx
 import pytest
 
 from app.config import Settings
-from app.llm_service import LLMBadResponse, LLMNotConfigured, LLMService, LLMTimeout
+from app.llm_service import LLMBadResponse, LLMError, LLMNotConfigured, LLMService, LLMTimeout
 
 VALID = {
     "category": "PAYMENT",
@@ -64,6 +64,28 @@ async def test_unauthorized_maps_to_not_configured():
 
     with pytest.raises(LLMNotConfigured):
         await service.classify("текст")
+
+
+@pytest.mark.asyncio
+async def test_rate_limit_reports_reset_time():
+    transport = httpx.MockTransport(
+        lambda request: httpx.Response(
+            429,
+            json={},
+            headers={
+                "x-ratelimit-remaining": "0",
+                "x-ratelimit-reset": "1793232000000",
+            },
+        )
+    )
+    service = LLMService(settings(), transport=transport)
+
+    with pytest.raises(LLMError) as exc:
+        await service.classify("текст")
+
+    message = str(exc.value)
+    assert "29.10.2026 00:00 UTC" in message
+    assert "на сегодня закончились" in message
 
 
 @pytest.mark.asyncio
