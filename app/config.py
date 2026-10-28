@@ -12,11 +12,11 @@ class Settings(BaseSettings):
         extra="ignore",
     )
 
-    # Заглушки: адрес и модель Groq уже подставлены, ключ нужно вписать
+    # Заглушки: адрес и модель OpenRouter уже подставлены, ключ нужно вписать
     # самому в .env. Пока ключа нет, /predict отвечает 503 с понятной причиной.
-    groq_api_key: Optional[str] = None
-    groq_base_url: Optional[str] = "https://api.groq.com/openai/v1"
-    llm_model: Optional[str] = "llama-3.3-70b-versatile"
+    openrouter_api_key: Optional[str] = None
+    openrouter_base_url: Optional[str] = "https://openrouter.ai/api/v1"
+    llm_model: Optional[str] = "google/gemma-4-31b-it:free"
 
     llm_timeout_seconds: float = 30.0
     llm_max_retries: int = 1
@@ -27,7 +27,7 @@ class Settings(BaseSettings):
 
     @property
     def llm_configured(self) -> bool:
-        return bool(self.groq_api_key and self.groq_base_url and self.llm_model)
+        return bool(self.openrouter_api_key and self.openrouter_base_url and self.llm_model)
 
 
 @lru_cache

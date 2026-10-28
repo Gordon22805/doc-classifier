@@ -25,10 +25,10 @@ SAMPLE_TICKETS = Path(__file__).resolve().parent.parent / "data" / "sample_ticke
 async def lifespan(app: FastAPI):
     settings = get_settings()
     if settings.llm_configured:
-        logger.info("Groq настроен, модель: %s", settings.llm_model)
+        logger.info("OpenRouter настроен, модель: %s", settings.llm_model)
     else:
         logger.warning(
-            "Groq не настроен: заполните GROQ_API_KEY в .env "
+            "OpenRouter не настроен: заполните OPENROUTER_API_KEY в .env "
             "(адрес и модель уже заданы по умолчанию)"
         )
     yield
@@ -58,9 +58,9 @@ async def health():
     summary="Классифицировать обращение",
     responses={
         422: {"description": "Пустой или слишком длинный текст"},
-        503: {"description": "Groq не настроен"},
-        504: {"description": "Groq не ответил вовремя"},
-        502: {"description": "Ошибка Groq или некорректный ответ модели"},
+        503: {"description": "OpenRouter не настроен"},
+        504: {"description": "OpenRouter не ответил вовремя"},
+        502: {"description": "Ошибка OpenRouter или некорректный ответ модели"},
     },
 )
 async def predict(ticket: TicketRequest):
@@ -89,7 +89,7 @@ async def analyze_tickets(limit: int | None = None):
     if not settings.llm_configured:
         raise HTTPException(
             status_code=503,
-            detail="Groq не настроен: задайте GROQ_API_KEY в .env "
+            detail="OpenRouter не настроен: задайте OPENROUTER_API_KEY в .env "
             "(адрес и модель уже заданы по умолчанию)",
         )
 

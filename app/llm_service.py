@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 
 
 class LLMError(Exception):
-    """Ошибка обращения к Groq или разбора ответа."""
+    """Ошибка обращения к OpenRouter или разбора ответа."""
 
 
 class LLMNotConfigured(LLMError):
@@ -40,8 +40,8 @@ class LLMService:
     async def classify(self, ticket_text: str) -> TicketClassification:
         if not self.is_configured():
             raise LLMNotConfigured(
-                "Groq не настроен: задайте GROQ_API_KEY, "
-                "GROQ_BASE_URL и LLM_MODEL в .env"
+                "OpenRouter не настроен: задайте OPENROUTER_API_KEY, "
+                "OPENROUTER_BASE_URL и LLM_MODEL в .env"
             )
 
         payload: Dict[str, Any] = {
@@ -53,8 +53,8 @@ class LLMService:
             ],
             "response_format": {"type": "json_object"},
         }
-        url = self.settings.groq_base_url.rstrip("/") + "/chat/completions"
-        headers = {"Authorization": f"Bearer {self.settings.groq_api_key}"}
+        url = self.settings.openrouter_base_url.rstrip("/") + "/chat/completions"
+        headers = {"Authorization": f"Bearer {self.settings.openrouter_api_key}"}
 
         started = time.perf_counter()
         try:
@@ -63,24 +63,24 @@ class LLMService:
             ) as client:
                 response = await client.post(url, json=payload, headers=headers)
         except httpx.TimeoutException as exc:
-            logger.warning("Groq timeout за %.2f с", time.perf_counter() - started)
-            raise LLMTimeout("Groq не ответил за отведённое время") from exc
+            logger.warning("OpenRouter timeout за %.2f с", time.perf_counter() - started)
+            raise LLMTimeout("OpenRouter не ответил за отведённое время") from exc
         except httpx.HTTPError as exc:
-            logger.warning("Groq недоступен: %s", type(exc).__name__)
-            raise LLMError("Не удалось связаться с Groq") from exc
+            logger.warning("OpenRouter недоступен: %s", type(exc).__name__)
+            raise LLMError("Не удалось связаться с OpenRouter") from exc
 
         elapsed = time.perf_counter() - started
         if response.status_code == 401:
-            raise LLMNotConfigured("Groq отклонил ключ: проверьте GROQ_API_KEY")
+            raise LLMNotConfigured("OpenRouter отклонил ключ: проверьте OPENROUTER_API_KEY")
         if response.status_code == 429:
-            logger.warning("Groq: превышен лимит запросов, %.2f с", elapsed)
-            raise LLMError("Groq: превышен лимит запросов, попробуйте позже")
+            logger.warning("OpenRouter: превышен лимит запросов, %.2f с", elapsed)
+            raise LLMError("OpenRouter: превышен лимит запросов, попробуйте позже")
         if response.status_code == 403:
-            logger.warning("Groq вернул 403 за %.2f с", elapsed)
-            raise LLMError("Groq вернул 403: запрос заблокирован, проверьте ключ и сеть")
+            logger.warning("OpenRouter вернул 403 за %.2f с", elapsed)
+            raise LLMError("OpenRouter вернул 403: запрос заблокирован, проверьте ключ и сеть")
         if response.status_code >= 400:
-            logger.warning("Groq вернул %s за %.2f с", response.status_code, elapsed)
-            raise LLMError(f"Groq вернул HTTP {response.status_code}")
+            logger.warning("OpenRouter вернул %s за %.2f с", response.status_code, elapsed)
+            raise LLMError(f"OpenRouter вернул HTTP {response.status_code}")
 
         raw = self._extract_content(response)
         logger.info("LLM ответила за %.2f с", elapsed)
@@ -92,7 +92,7 @@ class LLMService:
             data = response.json()
             return data["choices"][0]["message"]["content"]
         except (ValueError, KeyError, IndexError, TypeError) as exc:
-            raise LLMBadResponse("Groq вернул неожиданную структуру ответа") from exc
+            raise LLMBadResponse("OpenRouter вернул неожиданную структуру ответа") from exc
 
     @staticmethod
     def _parse(raw: str) -> TicketClassification:
