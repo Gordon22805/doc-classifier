@@ -25,11 +25,11 @@ SAMPLE_TICKETS = Path(__file__).resolve().parent.parent / "data" / "sample_ticke
 async def lifespan(app: FastAPI):
     settings = get_settings()
     if settings.llm_configured:
-        logger.info("OmniRouter настроен, модель: %s", settings.llm_model)
+        logger.info("Groq настроен, модель: %s", settings.llm_model)
     else:
         logger.warning(
-            "OmniRouter не настроен: заполните OMNIROUTER_API_KEY, "
-            "OMNIROUTER_BASE_URL и LLM_MODEL в .env"
+            "Groq не настроен: заполните GROQ_API_KEY в .env "
+            "(адрес и модель уже заданы по умолчанию)"
         )
     yield
 
@@ -58,9 +58,9 @@ async def health():
     summary="Классифицировать обращение",
     responses={
         422: {"description": "Пустой или слишком длинный текст"},
-        503: {"description": "OmniRouter не настроен"},
-        504: {"description": "OmniRouter не ответил вовремя"},
-        502: {"description": "Ошибка OmniRouter или некорректный ответ модели"},
+        503: {"description": "Groq не настроен"},
+        504: {"description": "Groq не ответил вовремя"},
+        502: {"description": "Ошибка Groq или некорректный ответ модели"},
     },
 )
 async def predict(ticket: TicketRequest):
@@ -89,8 +89,8 @@ async def analyze_tickets(limit: int | None = None):
     if not settings.llm_configured:
         raise HTTPException(
             status_code=503,
-            detail="OmniRouter не настроен: задайте OMNIROUTER_API_KEY, "
-            "OMNIROUTER_BASE_URL и LLM_MODEL в .env",
+            detail="Groq не настроен: задайте GROQ_API_KEY в .env "
+            "(адрес и модель уже заданы по умолчанию)",
         )
 
     cap = min(limit or settings.max_tickets, settings.max_tickets)

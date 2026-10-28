@@ -17,8 +17,8 @@ VALID = {
 
 def settings(**overrides):
     base = {
-        "omnirouter_api_key": "test-key",
-        "omnirouter_base_url": "https://llm.example.com/v1",
+        "groq_api_key": "test-key",
+        "groq_base_url": "https://llm.example.com/v1",
         "llm_model": "test-model",
     }
     base.update(overrides)
@@ -51,7 +51,7 @@ async def test_successful_call_sends_json_mode_and_returns_parsed():
 
 @pytest.mark.asyncio
 async def test_missing_configuration_raises_not_configured():
-    service = LLMService(Settings(omnirouter_api_key=None))
+    service = LLMService(Settings(groq_api_key=None))
 
     with pytest.raises(LLMNotConfigured):
         await service.classify("текст")
