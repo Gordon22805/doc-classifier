@@ -86,7 +86,7 @@ async def predict(ticket: TicketRequest):
 )
 async def analyze_tickets(limit: int | None = None):
     settings = get_settings()
-    if not settings.llm_configured:
+    if not classifier.llm.is_configured():
         raise HTTPException(
             status_code=503,
             detail="OpenRouter не настроен: задайте OPENROUTER_API_KEY в .env "

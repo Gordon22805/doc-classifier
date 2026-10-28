@@ -16,7 +16,7 @@ class Settings(BaseSettings):
     # самому в .env. Пока ключа нет, /predict отвечает 503 с понятной причиной.
     openrouter_api_key: Optional[str] = None
     openrouter_base_url: Optional[str] = "https://openrouter.ai/api/v1"
-    llm_model: Optional[str] = "google/gemma-4-31b-it:free"
+    llm_model: Optional[str] = "nvidia/nemotron-3.5-lightning:free"
 
     llm_timeout_seconds: float = 30.0
     llm_max_retries: int = 1

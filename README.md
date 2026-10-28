@@ -234,7 +234,7 @@ cp .env.example .env      # Windows PowerShell: copy .env.example .env
 ```env
 OPENROUTER_API_KEY=ваш-ключ
 OPENROUTER_BASE_URL=https://openrouter.ai/api/v1
-LLM_MODEL=google/gemma-4-31b-it:free
+LLM_MODEL=nvidia/nemotron-3.5-lightning:free
 ```
 
 `OPENROUTER_BASE_URL` указывается до `/chat/completions`, без слэша на конце. Адрес и модель уже подставлены по умолчанию в `app/config.py`, поэтому обязателен только ключ. Имя модели берётся из списка OpenRouter: сервис не привязан к конкретной модели, значение подставляется в запрос как есть.
